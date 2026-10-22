@@ -1,357 +1,530 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 void main() => runApp(const PortfolioApp());
 
+// ---------- Paleta ----------
+const _bg = Color(0xFF0B0F14);
+const _surface = Color(0xFF141A21);
+const _border = Color(0xFF232B35);
+const _primary = Color(0xFF00C2A8);
+const _accent = Color(0xFF7C5CFF);
+const _muted = Color(0xFF9AA6B2);
+
 class PortfolioApp extends StatelessWidget {
   const PortfolioApp({super.key});
-
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Meu Portfólio',
+      title: 'Portfólio — Dashboard E-commerce',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF6C63FF),
-          brightness: Brightness.dark,
+        brightness: Brightness.dark,
+        scaffoldBackgroundColor: _bg,
+        colorScheme: const ColorScheme.dark(
+          primary: _primary,
+          secondary: _accent,
         ),
-        scaffoldBackgroundColor: const Color(0xFF0F0F1A),
-        fontFamily: 'Roboto',
+        textTheme: GoogleFonts.interTextTheme(ThemeData.dark().textTheme),
       ),
-      home: const HomePage(),
+      home: const CasePage(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class CasePage extends StatefulWidget {
+  const CasePage({super.key});
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<CasePage> createState() => _CasePageState();
 }
 
-class _HomePageState extends State<HomePage> {
-  final _scrollController = ScrollController();
-  final _aboutKey = GlobalKey();
-  final _skillsKey = GlobalKey();
-  final _projectsKey = GlobalKey();
-  final _contactKey = GlobalKey();
+class _CasePageState extends State<CasePage> {
+  final _projetosKey = GlobalKey();
+  final _sobreKey = GlobalKey();
+  final _contatoKey = GlobalKey();
 
-  void _scrollTo(GlobalKey key) {
-    final ctx = key.currentContext;
+  void _go(GlobalKey k) {
+    final ctx = k.currentContext;
     if (ctx != null) {
       Scrollable.ensureVisible(ctx,
-          duration: const Duration(milliseconds: 600), curve: Curves.easeInOut);
+          duration: const Duration(milliseconds: 450),
+          curve: Curves.easeInOut);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isWide = MediaQuery.of(context).size.width > 800;
+    final wide = MediaQuery.of(context).size.width > 860;
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF0F0F1A).withOpacity(0.9),
+        backgroundColor: _bg.withOpacity(0.85),
         elevation: 0,
-        title: const Text('Meu Portfólio',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-        actions: isWide
+        title: const Text('[ LOGO / NOME ]',
+            style: TextStyle(fontWeight: FontWeight.w800, letterSpacing: 1)),
+        actions: wide
             ? [
-                _navBtn('Sobre', () => _scrollTo(_aboutKey)),
-                _navBtn('Habilidades', () => _scrollTo(_skillsKey)),
-                _navBtn('Projetos', () => _scrollTo(_projectsKey)),
-                _navBtn('Contato', () => _scrollTo(_contactKey)),
+                TextButton(onPressed: () => _go(_projetosKey), child: const Text('Projetos')),
+                TextButton(onPressed: () => _go(_sobreKey), child: const Text('Sobre')),
+                TextButton(onPressed: () => _go(_contatoKey), child: const Text('Contato')),
                 const SizedBox(width: 16),
               ]
             : null,
       ),
-      drawer: !isWide
-          ? Drawer(
+      drawer: wide
+          ? null
+          : Drawer(
               child: ListView(children: [
-                const DrawerHeader(
-                    child: Center(
-                        child: Text('Menu',
-                            style: TextStyle(fontSize: 24, color: Colors.white)))),
-                ListTile(title: const Text('Sobre'), onTap: () { Navigator.pop(context); _scrollTo(_aboutKey); }),
-                ListTile(title: const Text('Habilidades'), onTap: () { Navigator.pop(context); _scrollTo(_skillsKey); }),
-                ListTile(title: const Text('Projetos'), onTap: () { Navigator.pop(context); _scrollTo(_projectsKey); }),
-                ListTile(title: const Text('Contato'), onTap: () { Navigator.pop(context); _scrollTo(_contactKey); }),
+                const DrawerHeader(child: Center(child: Text('[ LOGO / NOME ]'))),
+                ListTile(title: const Text('Projetos'), onTap: () { Navigator.pop(context); _go(_projetosKey); }),
+                ListTile(title: const Text('Sobre'), onTap: () { Navigator.pop(context); _go(_sobreKey); }),
+                ListTile(title: const Text('Contato'), onTap: () { Navigator.pop(context); _go(_contatoKey); }),
               ]),
-            )
-          : null,
+            ),
       body: SingleChildScrollView(
-        controller: _scrollController,
-        child: Column(children: [
-          _heroSection(isWide),
-          _aboutSection(_aboutKey, isWide),
-          _skillsSection(_skillsKey, isWide),
-          _projectsSection(_projectsKey, isWide),
-          _contactSection(_contactKey),
-          _footer(),
-        ]),
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1080),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: wide ? 40 : 20, vertical: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  _HeroCard(wide: wide),
+                  const SizedBox(height: 28),
+                  const _MockupArea(),
+                  const SizedBox(height: 28),
+                  const _ProblemSolution(),
+                  const SizedBox(height: 28),
+                  const _Stack(),
+                  const SizedBox(height: 28),
+                  _Features(wide: wide),
+                  const SizedBox(height: 28),
+                  const _Results(),
+                  const SizedBox(height: 28),
+                  const _CTA(key: ValueKey('cta')),
+                  const SizedBox(height: 40),
+                  const Center(
+                    child: Text('© 2026 — Feito com Flutter',
+                        style: TextStyle(color: _muted, fontSize: 12)),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
+}
 
-  Widget _navBtn(String label, VoidCallback onTap) => TextButton(
-        onPressed: onTap,
-        child: Text(label,
-            style: const TextStyle(color: Colors.white70, fontSize: 16)),
-      );
+// ---------- Seção 1: Card de destaque ----------
+class _HeroCard extends StatelessWidget {
+  final bool wide;
+  const _HeroCard({required this.wide});
 
-  // ---------- HERO ----------
-  Widget _heroSection(bool isWide) {
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: isWide ? 80 : 24, vertical: 80),
-      child: Flex(
-        direction: isWide ? Axis.horizontal : Axis.vertical,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        crossAxisAlignment: CrossAxisAlignment.center,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: _border),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [_surface, _surface.withOpacity(0.6)],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Flexible(
-            child: Column(
-              crossAxisAlignment:
-                  isWide ? CrossAxisAlignment.start : CrossAxisAlignment.center,
-              children: [
-                const Text('Olá, eu sou 👋',
-                    style: TextStyle(color: Colors.white70, fontSize: 20)),
-                const SizedBox(height: 12),
-                const Text('Seu Nome Aqui',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 52,
-                        fontWeight: FontWeight.bold)),
-                const SizedBox(height: 12),
-                ShaderMask(
-                  shaderCallback: (bounds) => const LinearGradient(
-                    colors: [Color(0xFF6C63FF), Color(0xFF00D9FF)],
-                  ).createShader(bounds),
-                  child: const Text('Desenvolvedor Flutter',
-                      style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white)),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                    'Apaixonado por criar aplicativos mobile e web com Flutter.',
-                    style: TextStyle(color: Colors.white60, fontSize: 16)),
-                const SizedBox(height: 32),
-                Row(children: [
-                  ElevatedButton.icon(
-                    onPressed: () => _scrollTo(_contactKey),
-                    icon: const Icon(Icons.email),
-                    label: const Text('Entre em contato'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF6C63FF),
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 18),
-                    ),
-                  ),
-                ]),
-              ],
-            ),
+          Wrap(spacing: 8, runSpacing: 8, children: const [
+            _Tag(label: 'Front-end'),
+            _Tag(label: 'React'),
+            _Tag(label: 'Out 2026', icon: Icons.calendar_today_outlined),
+          ]),
+          const SizedBox(height: 20),
+          Text(
+            '🎯 Desenvolvimento de um Dashboard E-commerce em Tempo Real',
+            style: TextStyle(
+                fontSize: wide ? 28 : 22,
+                fontWeight: FontWeight.w800,
+                height: 1.25),
           ),
-          const SizedBox(width: 40, height: 40),
-          Container(
-            width: isWide ? 260 : 180,
-            height: isWide ? 260 : 180,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: const LinearGradient(
-                  colors: [Color(0xFF6C63FF), Color(0xFF00D9FF)]),
-              boxShadow: [
-                BoxShadow(
-                    color: const Color(0xFF6C63FF).withOpacity(0.4),
-                    blurRadius: 40,
-                    spreadRadius: 8),
-              ],
-            ),
-            child: const Icon(Icons.person, size: 120, color: Colors.white),
+          const SizedBox(height: 14),
+          const Text(
+            'Uma aplicação web escalável com atualizações ao vivo, gráficos interativos '
+            'e foco total na experiência do usuário (UX).',
+            style: TextStyle(color: _muted, fontSize: 15, height: 1.6),
           ),
+          const SizedBox(height: 24),
+          Wrap(spacing: 12, runSpacing: 12, children: [
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _primary,
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              ),
+              onPressed: () => _open('https://github.com/dzzeti-source/Flutter'),
+              icon: const Icon(Icons.code, size: 18),
+              label: const Text('Ver Código no GitHub'),
+            ),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: _accent),
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              ),
+              onPressed: () => _open('https://dzzeti-source.github.io/Flutter/'),
+              icon: const Icon(Icons.rocket_launch_outlined, size: 18),
+              label: const Text('Acessar Deploy em Produção'),
+            ),
+          ]),
         ],
       ),
     );
   }
+}
 
-  // ---------- SOBRE ----------
-  Widget _aboutSection(GlobalKey key, bool isWide) {
-    return _sectionWrapper(
-      key,
-      title: 'Sobre Mim',
-      child: const Text(
-        'Sou desenvolvedor(a) com experiência em Flutter, Dart e desenvolvimento web. '
-        'Adoro transformar ideias em produtos digitais bonitos e funcionais. '
-        'Tenho experiência com APIs REST, Firebase, Git/GitHub e metodologias ágeis.',
-        textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.white70, fontSize: 16, height: 1.8),
+class _Tag extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  const _Tag({required this.label, this.icon});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: _primary.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: _primary.withOpacity(0.4)),
       ),
+      child: Row(mainAxisSize: MainAxisSize.min, children: [
+        if (icon != null) ...[
+          Icon(icon, size: 12, color: _primary),
+          const SizedBox(width: 6),
+        ],
+        Text(label,
+            style: const TextStyle(
+                color: _primary, fontSize: 12, fontWeight: FontWeight.w600)),
+      ]),
     );
   }
+}
 
-  // ---------- HABILIDADES ----------
-  Widget _skillsSection(GlobalKey key, bool isWide) {
-    final skills = [
-      {'name': 'Flutter / Dart', 'value': 0.9},
-      {'name': 'Firebase', 'value': 0.8},
-      {'name': 'APIs REST', 'value': 0.85},
-      {'name': 'UI/UX Design', 'value': 0.75},
-      {'name': 'Git / GitHub', 'value': 0.9},
-    ];
-    return _sectionWrapper(
-      key,
-      title: 'Habilidades',
-      child: Wrap(
-        spacing: 24,
-        runSpacing: 24,
-        alignment: WrapAlignment.center,
-        children: skills.map((s) {
-          return SizedBox(
-            width: isWide ? 400 : 300,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(s['name'] as String,
-                    style: const TextStyle(color: Colors.white, fontSize: 16)),
-                const SizedBox(height: 8),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: s['value'] as double,
-                    minHeight: 10,
-                    backgroundColor: Colors.white12,
-                    valueColor: const AlwaysStoppedAnimation(Color(0xFF00D9FF)),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  // ---------- PROJETOS ----------
-  Widget _projectsSection(GlobalKey key, bool isWide) {
-    final projects = [
-      {'title': 'App de Tarefas', 'desc': 'App Flutter com Firebase.', 'icon': Icons.check_circle},
-      {'title': 'E-commerce', 'desc': 'Loja virtual em Flutter Web.', 'icon': Icons.shopping_cart},
-      {'title': 'Dashboard', 'desc': 'Dashboard analítico responsivo.', 'icon': Icons.bar_chart},
-      {'title': 'Chat App', 'desc': 'Chat em tempo real com Firestore.', 'icon': Icons.chat},
-    ];
-    return _sectionWrapper(
-      key,
-      title: 'Projetos',
-      child: Wrap(
-        spacing: 24,
-        runSpacing: 24,
-        alignment: WrapAlignment.center,
-        children: projects.map((p) {
-          return Container(
-            width: isWide ? 300 : 280,
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: const Color(0xFF1A1A2E),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white12),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(p['icon'] as IconData, size: 40, color: const Color(0xFF00D9FF)),
-                const SizedBox(height: 16),
-                Text(p['title'] as String,
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                Text(p['desc'] as String,
-                    style: const TextStyle(color: Colors.white60)),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => launchUrl(Uri.parse('https://github.com')),
-                  child: const Text('Ver mais →',
-                      style: TextStyle(color: Color(0xFF6C63FF))),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  // ---------- CONTATO ----------
-  Widget _contactSection(GlobalKey key) {
-    return _sectionWrapper(
-      key,
-      title: 'Contato',
-      child: Column(
-        children: [
-          const Text('Vamos trabalhar juntos!',
-              style: TextStyle(color: Colors.white70, fontSize: 16)),
-          const SizedBox(height: 24),
-          Wrap(
-            spacing: 24,
-            runSpacing: 16,
-            alignment: WrapAlignment.center,
-            children: [
-              _contactIcon(FontAwesomeIcons.github, 'GitHub',
-                  'https://github.com/seu-usuario'),
-              _contactIcon(FontAwesomeIcons.linkedin, 'LinkedIn',
-                  'https://linkedin.com/in/seu-usuario'),
-              _contactIcon(FontAwesomeIcons.envelope, 'Email',
-                  'mailto:seuemail@exemplo.com'),
+// ---------- Seção 2: Mockup ----------
+class _MockupArea extends StatelessWidget {
+  const _MockupArea();
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 16 / 9,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _surface,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: _border),
+        ),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.image_outlined, size: 56, color: _muted),
+              SizedBox(height: 12),
+              Text(
+                '[ Imagem/GIF ou Vídeo demonstrativo da interface da aplicação ]',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: _muted),
+              ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ---------- Seção 3: Problema & Solução ----------
+class _ProblemSolution extends StatelessWidget {
+  const _ProblemSolution();
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: const [
+        _BlockCard(
+          icon: Icons.warning_amber_rounded,
+          title: 'O Desafio',
+          body:
+              'Lojistas precisavam monitorar vendas sem atualizar a página manualmente, '
+              'perdendo tempo e dados críticos para decisões rápidas.',
+        ),
+        SizedBox(height: 16),
+        _BlockCard(
+          icon: Icons.lightbulb_outline,
+          title: 'A Solução',
+          body:
+              'Criação de um pipeline de dados com WebSockets e renderização otimizada, '
+              'entregando atualizações em tempo real sem recarregar a tela.',
+          accent: true,
+        ),
+      ],
+    );
+  }
+}
+
+class _BlockCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String body;
+  final bool accent;
+  const _BlockCard({required this.icon, required this.title, required this.body, this.accent = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: accent ? _primary.withOpacity(0.5) : _border),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: accent ? _primary : _accent, size: 26),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title,
+                    style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
+                const SizedBox(height: 6),
+                Text(body, style: const TextStyle(color: _muted, height: 1.6)),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _contactIcon(IconData icon, String label, String url) {
-    return InkWell(
-      onTap: () => launchUrl(Uri.parse(url)),
-      child: Column(children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: const BoxDecoration(
-              shape: BoxShape.circle, color: Color(0xFF1A1A2E)),
-          child: Icon(icon, color: const Color(0xFF00D9FF), size: 28),
-        ),
-        const SizedBox(height: 8),
-        Text(label, style: const TextStyle(color: Colors.white70)),
-      ]),
+// ---------- Seção 4: Stack ----------
+class _Stack extends StatelessWidget {
+  const _Stack();
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      ('React.js', 'Componentização e ecossistema maduro.'),
+      ('Node.js', 'WebSockets leves e alta concorrência.'),
+      ('Tailwind CSS', 'UI consistente e responsiva com velocidade.'),
+    ];
+    return _Section(
+      title: '🛠️ Arquitetura e Tecnologias',
+      child: Column(
+        children: items
+            .map((e) => Container(
+                  margin: const EdgeInsets.only(bottom: 12),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: _surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: _border),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: _accent.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Text(e.$1,
+                            style: const TextStyle(
+                                color: _accent, fontWeight: FontWeight.w600, fontSize: 12)),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(child: Text(e.$2, style: const TextStyle(color: _muted))),
+                    ],
+                  ),
+                ))
+            .toList(),
+      ),
     );
   }
+}
 
-  Widget _footer() => Container(
-        padding: const EdgeInsets.all(24),
-        child: const Text('© 2026 Seu Nome. Feito com Flutter 💙',
-            style: TextStyle(color: Colors.white38)),
-      );
+// ---------- Seção 5: Features ----------
+class _Features extends StatelessWidget {
+  final bool wide;
+  const _Features({required this.wide});
+  @override
+  Widget build(BuildContext context) {
+    final cards = [
+      ('🎨 UI/UX Responsivo', 'Se adapta a qualquer tamanho de tela.'),
+      ('📊 Gráficos Dinâmicos', 'Atualização a cada 500ms usando ApexCharts.'),
+      ('🔒 Autenticação', 'Proteção de rotas com JWT.'),
+    ];
+    return _Section(
+      title: '⚡ Características Principais',
+      child: wide
+          ? Row(
+              children: cards
+                  .map((c) => Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 12),
+                          child: _FeatureCard(title: c.$1, body: c.$2),
+                        ),
+                      ))
+                  .toList(),
+            )
+          : Column(
+              children: cards
+                  .map((c) => Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: _FeatureCard(title: c.$1, body: c.$2),
+                      ))
+                  .toList(),
+            ),
+    );
+  }
+}
 
-  Widget _sectionWrapper(GlobalKey key,
-      {required String title, required Widget child}) {
+class _FeatureCard extends StatelessWidget {
+  final String title;
+  final String body;
+  const _FeatureCard({required this.title, required this.body});
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      key: key,
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 60),
-      child: Column(children: [
-        Text(title,
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 36,
-                fontWeight: FontWeight.bold)),
-        const SizedBox(height: 8),
-        Container(
-            width: 60, height: 4, color: const Color(0xFF6C63FF)),
-        const SizedBox(height: 40),
-        child,
-      ]),
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: _surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: _border),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
+          const SizedBox(height: 8),
+          Text(body, style: const TextStyle(color: _muted, height: 1.5, fontSize: 13)),
+        ],
+      ),
     );
   }
+}
+
+// ---------- Seção 6: Resultados ----------
+class _Results extends StatelessWidget {
+  const _Results();
+  @override
+  Widget build(BuildContext context) {
+    return _Section(
+      title: '📈 Resultados e Lições Aprendidas',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: const [
+          _Bullet(text: 'Desempenho: redução de 40% no tempo de carregamento inicial (LCP).'),
+          SizedBox(height: 10),
+          _Bullet(text: 'Aprendizado: implementação profunda de gerenciamento de estado global.'),
+        ],
+      ),
+    );
+  }
+}
+
+class _Bullet extends StatelessWidget {
+  final String text;
+  const _Bullet({required this.text});
+  @override
+  Widget build(BuildContext context) {
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      const Padding(
+        padding: EdgeInsets.only(top: 6, right: 10),
+        child: Icon(Icons.circle, size: 8, color: _primary),
+      ),
+      Expanded(child: Text(text, style: const TextStyle(color: _muted, height: 1.6))),
+    ]);
+  }
+}
+
+// ---------- Seção 7: CTA ----------
+class _CTA extends StatelessWidget {
+  const _CTA({super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        gradient: LinearGradient(colors: [
+          _primary.withOpacity(0.18),
+          _accent.withOpacity(0.18),
+        ]),
+        border: Border.all(color: _primary.withOpacity(0.4)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text('🤝 Vamos trabalhar juntos?',
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 8),
+          const Text(
+            'Gostou do projeto? Estou disponível para novos desafios e contratos.',
+            style: TextStyle(color: _muted, height: 1.6),
+          ),
+          const SizedBox(height: 20),
+          Wrap(spacing: 12, runSpacing: 12, children: [
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: _primary,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16)),
+              onPressed: () => _open('mailto:seu@email.com'),
+              icon: const Icon(Icons.email_outlined, size: 18),
+              label: const Text('Enviar Mensagem por E-mail'),
+            ),
+            OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: _accent),
+                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16)),
+              onPressed: () => _open('https://linkedin.com/in/seu-usuario'),
+              icon: const Icon(Icons.work_outline, size: 18),
+              label: const Text('Conectar no LinkedIn'),
+            ),
+          ]),
+        ],
+      ),
+    );
+  }
+}
+
+// ---------- Helper: Section wrapper ----------
+class _Section extends StatelessWidget {
+  final String title;
+  final Widget child;
+  const _Section({required this.title, required this.child});
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(title,
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800)),
+        const SizedBox(height: 16),
+        child,
+      ],
+    );
+  }
+}
+
+Future<void> _open(String url) async {
+  final uri = Uri.parse(url);
+  if (await canLaunchUrl(uri)) launchUrl(uri, webOnlyWindowName: '_blank');
 }
